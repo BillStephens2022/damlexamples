@@ -1,0 +1,50 @@
+module ListExample where
+
+import Daml.Script
+import DA.List
+
+listTest: Script ()
+listTest = script do
+  let
+    intList = [1,2,4]
+    fruitList = ["orange", "apple", "banana"]
+    veggieList = ["carrot", "potato"]
+
+    rangeList = [10 .. 20]
+    evenList = [2,4 .. 20]
+    -- concatenate lists into new list
+    fruitAndVeggieList = fruitList <> veggieList
+
+
+  -- head shows 1st item in the list
+  debug $ "Head: " <> show (head fruitList)
+  -- tail shows everything after the head
+  debug $ "Tail: " <> show (tail fruitList)
+  -- last shows the last item in the list
+  debug $ "last: " <> show (last fruitList)
+  -- sort items in list
+  debug $ "sort: " <> show (sort fruitList)
+  -- init shows all items except the last one
+  debug $ "init: " <> show (init fruitList)
+  -- reverse items in the list
+  debug $ "reverse: " <> show (reverse fruitList)
+  -- take n items from the list, starting with first item
+  debug $ "take: " <> show (take 2 fruitList)
+  -- returns true if item in the list
+  debug $ "elem: " <> show (elem "apple" fruitList)
+  -- same as above using infix instead
+  debug $ "elem: " <> show ("apple" `elem` fruitList)
+  -- sum of all numbers in the list
+  debug $ "sum: " <> show (sum intList)
+  -- product of all numbers in the list
+  debug $ "product: " <> show (product intList)
+  -- show length of list
+  debug $ "length: " <> show (length veggieList)
+  -- print entire list that was created using the ".." notation above when declared & assigned
+  debug $ "range from 10 to 20: " <> show (rangeList)
+  debug $ "even numbers from 2 to 20: " <> show (evenList)
+  -- adds item to beginning of list
+  debug $ "prepend: " <> show ("mango" :: fruitList)
+  debug $ "range: " <> show (fruitAndVeggieList)
+  debug $ fruitAndVeggieList
+  

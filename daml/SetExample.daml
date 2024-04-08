@@ -1,0 +1,31 @@
+module SetExample where
+
+import Daml.Script
+import DA.Set as Set
+
+setTest = script do
+  let
+    fruitSet: Set toText
+    fruitSet = Set.empty
+  let fruitList = ["apple", "banana", "cherry", "apple", "pineapple"]
+  let fruitSet = Set.fromList fruitList
+
+  -- size is 4 since any item duped in list (i.e. apple) 
+  -- will not be included in the set
+  debug $ Set.size fruitSet  
+  -- note that the duped "apple" item is not shown in the set
+  debug $ show fruitSet
+  -- returns False since mango is not included in the set
+  debug $ Set.member "mango" fruitSet
+  debug $ "----------------"
+
+  -- note that we save the below to a new variable name since 
+  -- variables in DAML are immutable, so if we want to modify, we
+  -- need to save to a new variable name which becomes a new Set
+  let newFruitSet = Set.insert "mango" fruitSet
+  -- size of newFruitSet which now includes mango
+  debug $ Set.size newFruitSet
+  -- shows entire list which now includes mango
+  debug $ show newFruitSet
+  -- returns True since it now includes mango
+  debug $ Set.member "mango" newFruitSet

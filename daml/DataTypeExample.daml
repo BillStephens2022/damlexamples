@@ -1,0 +1,13 @@
+module DataTypeExample where
+import Daml.Script
+
+datatype_test : Script ()
+datatype_test = script do
+    let
+
+      amount: Decimal
+      amount = 5425.12345
+
+    debug $ amount
+
+    return()

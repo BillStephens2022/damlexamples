@@ -1,0 +1,45 @@
+module Main where
+import Daml.Script
+
+increment: Int -> Int
+increment x = x + 1
+
+add: Int -> Int -> Int
+add x y = x + y
+
+multiply: Int -> Int -> Int
+multiply x y = x * y
+
+quadFunction: Int -> Int -> Int -> Int
+quadFunction x y z = (3 * x ^ 2) + (2 * y) + z
+
+doubleMe: Int -> Int
+doubleMe x = 2 * x
+doubleUs : Int -> Int -> Int
+doubleUs x y = doubleMe x + doubleMe y
+
+-- infix_doubleMe x  = x `doubleMe`
+-- infix_doubleUs x y = x `doubleUs` y
+
+
+testFunctions: Script ()
+testFunctions = script do
+  debug $ increment 4
+  debug $ add 7 4
+  debug (multiply 7 4)
+  debug $ quadFunction 1 2 3
+  debug $ doubleMe 3
+  debug $ doubleUs 3 4
+  -- using a lambda function instead of defining quadFunction
+  debug $ (\x y z -> (3 * x ^ 2) + (2 * y) + z) 1 2 3
+  -- using 'infix' notation to call function
+  debug $ 3 `doubleUs` 4
+  
+
+
+
+
+  
+
+
+
