@@ -1,0 +1,55 @@
+module ControlFlowExample where
+
+import Daml.Script
+
+-- Simple If - then - else
+ifOddOrEven: Int -> Text
+ifOddOrEven x = 
+    if (x % 2 == 0) then "even"
+    else "odd"
+
+testOddOrEven: Script ()
+testOddOrEven = script do
+    debug $ ifOddOrEven 6
+
+-- Using 'Guards' where there can be multiple if then blocks
+-- using where binding we can define a formula for bmi to 
+-- use for each condition (instead of repeating formula for every line)
+findBmi: Decimal -> Decimal -> Text
+findBmi height weight
+    | bmi <= 18.5 = "Underweight"
+    | bmi <= 25.0 = "Normal"
+    | bmi <= 30.0 = "Overweight"
+    | otherwise = "Obese"-- "otherwise is the catch-all"
+    -- "where binding"
+    where bmi = weight / height ^ 2 
+
+testFindBmi: Script ()
+testFindBmi = script do
+    debug $ findBmi 1.5 50.0
+    debug $ findBmi 1.5 60.0
+
+-- case statement (uses pattern matching instead of boolean conditions to branch)
+caseOddOrEven: Int -> Text
+caseOddOrEven x = case (x%2) of
+    0 -> "even"
+    1 -> "odd"
+    _ -> "unknown"  -- "the underscore character is the catch-all"
+
+testOddOrEven2: Script ()
+testOddOrEven2 = script do
+    debug $ caseOddOrEven 19
+
+
+-- function returns either Text or an Integer
+-- if Integer is less than zero, it returns Text "Error"
+-- else it adds 2 to the input
+someFunction: Int -> Either Text Int
+someFunction x =
+    if (x < 0) then
+        Left "Error"  -- uses "left constructor" which is Text in the function signature
+    else Right (x + 2)  -- uses "right  constructor" which is Int in the function signature
+
+testSomeFunction = script do
+    debug $ someFunction (-2)
+    debug $ someFunction (2)
