@@ -1,7 +1,9 @@
 module Lab3 where
 
+-- Lab 3 - Typeclass example
+
 import Daml.Script
-import DA.Text
+
 
 class Reachable i o where
     reachOut: i -> o
