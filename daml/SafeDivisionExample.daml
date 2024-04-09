@@ -1,0 +1,18 @@
+module SafeDivisionExample where
+
+import Daml.Script
+
+notSafeDiv: Int -> Int -> Int
+notSafeDiv x y = x / y
+
+safeDiv: Int -> Int -> Optional Int
+safeDiv _ 0 = None
+safeDiv x y = Some (x / y)
+
+testOptional: Script ()
+testOptional = script do
+    -- debug $ notSafeDiv 5 0
+    -- debug $ notSafeDiv 5 2
+
+    debug $ safeDiv 5 0
+    debug $ safeDiv 5 2

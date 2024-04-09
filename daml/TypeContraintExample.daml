@@ -1,0 +1,12 @@
+module TypeContraintExample where
+
+import Daml.Script
+
+hello: Show a => a -> Text
+hello a = "Hello" <> show a
+
+testHello: Script ()
+testHello = script do
+    debug $ hello 12
+    debug $ hello [1,2,3]
+    debug $ hello ("abc", 3)

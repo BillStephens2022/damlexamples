@@ -1,0 +1,106 @@
+module Lab2 where 
+
+import Daml.Script
+import DA.List (head, tail)
+import DA.Text (words)
+import qualified DA.Map as Map
+
+
+-- Problem 1.1
+musicalScript: Script ()
+musicalScript = script do
+    -- song list of tuples (note, meaning)
+    let song = [("do", "a deer, a female deer"), ("re", "a drop of golden sun"), 
+                        ("mi", "a name, I call myself"), ("fa", "a long long way to run")]
+       -- get the head of the song to get the first tuple
+       -- save 1st value in tuple as the note
+        note1 = [(head song)._1] 
+        -- save the 2nd value in the tuple as the meaning
+        meaning1 = [(head song)._2]
+        -- remaining song is the tail (i.e. song less head)
+        remainingSong = tail song
+        -- update song to just be the remaining song
+        song = remainingSong
+        -- redo steps above on the new song list (which was reassigned to remainging song)
+        note2 = [(head song)._1]
+        meaning2 = [(head song)._2]
+        remainingSong = tail song
+        song = remainingSong
+
+        note3 = [(head song)._1]
+        meaning3 = [(head song)._2]
+        remainingSong = tail song
+        song = remainingSong
+
+        note4 = [(head song)._1]
+        meaning4 = [(head song)._2]
+        remainingSong = tail song
+        song = remainingSong
+        -- create a list of just the notes
+        justNotes = [head note1, head note2, head note3, head note4]
+        -- create a list of just the meanings
+        justMeanings = [head meaning1, head meaning2, head meaning3, head meaning4]
+    -- print the list of notes
+    debug $ justNotes
+    -- print the list of meanings
+    debug $ justMeanings
+    -- reverse the list of notes
+    debug $ reverse justNotes
+    -- reverse the list of meanings
+    debug $ reverse justMeanings
+
+    return ()
+
+
+--Problem 1.2
+musicalScriptWithMap: Script ()
+musicalScriptWithMap = script do
+    -- creat a map (key:value pairs) from this song list of tuples
+    let song = [("do", "a deer, a female deer"), ("re", "a drop of golden sun"), ("mi", "a name, I call myself"), ("fa", "a long long way to run")]
+        notesMap = Map.fromList song 
+    -- get size of the map
+    debug $ Map.size notesMap
+    -- lookup the meaning (value) mapped to "do" note (key)
+    debug $ Map.lookup "do" notesMap
+    debug $ Map.lookup "re" notesMap
+    debug $ Map.lookup "mi" notesMap
+    debug $ Map.lookup "fa" notesMap
+
+    return()
+
+musicalScriptWithLoop: Script ()
+musicalScriptWithLoop = script do
+    -- create song list of tuples
+    let song = [("do", "a deer, a female deer"), ("re", "a drop of golden sun"), 
+                        ("mi", "a name, I call myself"), ("fa", "a long long way to run")]
+    -- uses map function to extract only the notes from the song list of tuples and store in new list called 'notes'
+    let notes = map (\x -> x._1 ) song
+    -- uses map function to extract only the meanings from the song list of tuples and store in new list called 'meanings'
+    let meanings = map (\x -> x._2) song 
+    -- print lists of notes and meanings
+    debug notes
+    debug meanings
+
+    return ()
+
+
+-- Problem 2
+termFrequency: Text -> Text -> Decimal
+termFrequency term string = do 
+    -- calculates the number of occurrences (n) of the search term in the string. It splits 
+    -- the string into words using words, filters those words that are equal to the search term, 
+    -- and then counts the number of filtered words using length.
+    let n = length (filter (==term) (words string)) 
+    --This calculates the total number of words (d) in the string.
+        d = length (words string)
+    -- This calculates the frequency of the search term in the string by dividing the number of
+    -- occurrences (n) by the total number of words (d). It converts n and d to Decimal type 
+    -- using intToDecimal before performing the division.
+    intToDecimal n / intToDecimal d
+    
+
+testTermFrequency = script do 
+
+    debug $ termFrequency "long" "a long long way to run"
+    
+    return ()
