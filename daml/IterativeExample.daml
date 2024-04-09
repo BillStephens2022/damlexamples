@@ -1,0 +1,74 @@
+module IterativeExample where
+
+import Daml.Script
+
+-- recursion example
+fibonacci: Int -> Int
+fibonacci n 
+    | n <= 2 = 1
+    | otherwise = fibonacci (n-2) + fibonacci (n-1)
+
+testFibonacci: Script ()
+testFibonacci = script do
+    debug $ fibonacci 7
+
+-- map example
+moduloUsingMap: [Int] -> Int -> [Int]
+moduloUsingMap x y = map (% y ) x
+
+testModuloUsingMap: Script ()
+testModuloUsingMap = script do
+    debug $ moduloUsingMap [14, 15, 19, 20] 3
+
+-- folds
+-- foldl iterates from left to right
+-- foldr iterates from right to left
+-- a fold function takes 3 arguments - 
+  -- 1) a binary function, 
+  -- 2) starting value for the accumulator (often 0),
+  -- 3) and a list
+
+sumList: [Int] -> Int
+-- arguments: 1) binary function '+', 
+-- 2) accumulator starting value: '0', and 
+-- 3) a list x
+-- returns the accumulator value
+sumList x = foldl (+) 0 x 
+
+listToText: [Int] -> Text
+listToText x = foldl (\acc y -> acc <> show y) "" x
+
+reverseListToText: [Int] -> Text
+reverseListToText x = foldr (\y acc -> acc <> show y) "" x
+
+testFolds: Script ()
+testFolds = script do
+    debug $ sumList [1..4]
+    debug $ listToText [1..4]
+    debug $ reverseListToText [1..4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

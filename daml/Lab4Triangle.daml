@@ -1,0 +1,10 @@
+module Lab4Triangle where
+
+import Daml.Script
+
+-- Lab 4 - Control Flow Problem 2 - Triangle Area
+triangleArea: [Int] -> Either Text Int
+triangleArea [x, y, z] = 
+    if (length [sidesList] < 3) then Left "Error!"
+    else Right length [sidesList]
+
