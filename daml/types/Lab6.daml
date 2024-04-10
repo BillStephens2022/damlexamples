@@ -46,12 +46,20 @@ testSafeAccount = script do
 
 -- defines a typeclass named Redeemable with two type parameters i and o.
 -- It declares a single function redeem that takes a value of type i and returns a value of type o.
--- his type class is designed for types that are redeemable, meaning they can be converted into some other type.
-class Redeemable i  o where 
+-- this type class is designed for types that are redeemable, meaning they can be converted into some other type.
+class Redeemable i o where 
     redeem: i -> o
 
 -- defines a data type AirtravelPoint representing air travel points.
 -- contains a single field count of type Int, representing the number of air travel points.
+-- Breaking this down further word by word:
+  -- 'data' is used to declare a new data type
+  -- 'AirtravelPoint' before the '=' sign is the name of the data type being declared
+  -- '=' indicates that we are defining the structure and properties of the data type
+  -- 'AirtravelPoint' after the '=' sign is the constructor function for the AirtravelPoint data type
+  -- 'with' - with used to introduce field definiations within a data type
+  -- 'count' - name of the field we want to use within this data type
+  -- 'Int' - the type for 'count' field
 data AirtravelPoint = AirtravelPoint with 
     count: Int 
 -- defines a data type DiningPoint representing dining points.
@@ -62,6 +70,17 @@ data DiningPoint = DiningPoint with
 -- Declares an instance of the Redeemable type class for the AirtravelPoint type, where the input type is AirtravelPoint and the output type is Decimal.
 -- implements the redeem function for this instance.
 -- Inside redeem, it converts the count field of the points argument to a Decimal using intToDecimal, then multiplies it by 10.00.
+-- Breaking this down further word by word:
+  -- 'instance' - keyword used to declare an instance of a type class (of the type class 'Redeemable' specifically)
+  -- 'Redeemable' - the type class we are creating an instance of - we defined this Reedemable type class above in the code
+  -- 'AirtravelPoint - this is the type for which we are declaring an instance (Airtravelpoint is a type of type class reedemable (which is like an interface in other languages - so it AirtravelPoint implements Redeemable, so to speak))
+  -- 'Decimal' - This is the output type -  It indicates what type the redeem function will return when called with an argument of type AirtravelPoint.
+  -- 'where' - This keyword is used to introduce the implementation of the functions defined in the type class for the specified type.
+  -- 'redeem' - This is the name of the function defined in the Redeemable type class that we're implementing for the AirtravelPoint type.
+  -- 'points' - This is the argument to the redeem function. It represents an instance of the 'AirtravelPoint' type.
+  -- 'intToDecimal - This is a function used to convert an integer to a decimal value. It's used here to convert the count field of the points argument to a decimal value.
+  -- 'points.count' - This accesses the count field of the points argument. In DAML, you access fields of a record using the dot notation.
+  -- '* 10' = multipling the points.count by 10 to get the air travel points
 instance Redeemable AirtravelPoint Decimal where 
     redeem points = intToDecimal points.count * 10.00 
 
