@@ -7,6 +7,7 @@ testBankService: Script ()
 testBankService = script do
     bank <- allocateParty "Bank"
     alice <- allocateParty "Alice"
+    bob <- allocateParty "bob"
     -- note submitMulti accepts 2 arguments which are lists
     -- first list ([bank, alice]) has the parties with "actAs" authority
     -- second list ([]), which is empty in this example, has the parties with the "readAs" authority
@@ -21,5 +22,17 @@ testBankService = script do
         exerciseCmd aliceAccountCid Deposit
             with
                 amount = 20.00
+    
+    bankServiceCid <- submit bank do
+        createCmd BankService with
+            bank
+    
+    submit bank do
+        exerciseCmd bankServiceCid CheckKey
+            with key = (bank, alice)
+
+    submit bank do
+        exerciseCmd bankServiceCid CheckKey
+            with key = (bank, bob)
 
     return ()
