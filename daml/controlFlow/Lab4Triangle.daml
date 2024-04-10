@@ -1,10 +1,54 @@
 module Lab4Triangle where
 
 import Daml.Script
+import DA.List (last, tail, head, sort)
+import DA.Math (sqrt)
+import DA.Foldable (Foldable(maximum))
 
 -- Lab 4 - Control Flow Problem 2 - Triangle Area
-triangleArea: [Int] -> Either Text Int
-triangleArea [x, y, z] = 
-    if (length [sidesList] < 3) then Left "Error!"
-    else Right length [sidesList]
 
+-- Heron's formula for calculating area of triangle
+calculateTriangleArea: Decimal -> Decimal -> Decimal -> Decimal
+calculateTriangleArea a b c =
+    sqrt (s * (s - a) * (s - b) * (s - c))
+    where s = (a + b + c) / 2.0
+
+-- calculates area of triangle given that side lengths are provided in a List
+triangleArea: [Decimal] -> Either Text Decimal
+triangleArea x = do
+    -- check if # of sides does not equal 3 ( '/=' is not equal to)
+    if (length x /= 3) then Left "Error: Triangle has 3 sides"
+    else
+        -- check if any of the sides has zero length
+        -- 'head' returns the length of the first side - the first element of list x
+        -- 'head (tail x) returns the length of the second side - the first element of the tail (the tail excludes the first side)
+        -- 'last' returns the length of the third side - the last element of list x
+        if (head x == 0.0 || head (tail x) == 0.0 || last x == 0.0) then
+            Left "Error: Side of a Triangle can't be 0!"
+        else
+            -- check if the sum of any two sides is less than the third side
+            -- sort x sorts the list of side lengths in ascending order
+            -- reverse - resorts the list in descending order (largest side first)
+            -- tail - gets the the smaller two sides (excludes the head which is the largest side in the reverse sorted list)
+            -- maximum x - finds the largest side
+            -- if the largest side is greater than or equal to the sum of the smaller two sides - if this is true, it can't be a triangle and error message is shown
+            if ((maximum x)) >= sum (tail (reverse (sort x))) then
+                Left "Error: This can't be a triangle as sum of any two sides must be greater than the third side!"
+            -- if all other conditions pass above, calculate the area of the triangle
+            else
+                -- calculates are of triangle
+                -- 1st argument - head x is 1st element of list x - length of side 1
+                -- 2nd argument - head (tail x) is the 2nd element of list x (the first element of the tail) - length of side 2
+                -- 3rd argument - last x is the last or 3rd element of list x - length of side 3
+                Right (calculateTriangleArea (head x) (head (tail x)) (last x))
+testTriangle: Script ()
+testTriangle = script do
+    debug $ triangleArea [4.0, 2.0, 5.0]
+    -- error sum of 1 + 2 = 3 (sum of any two sides must be greater than the third)
+    debug $ triangleArea [1.0, 2.0, 3.0]
+    -- error - only two sides in list - must be 3!
+    debug $ triangleArea [1.0, 2.0]
+    -- error - a side length cannot be equal to zero!
+    debug $ triangleArea [1.0, 2.0, 0.0]
+
+    return ()
