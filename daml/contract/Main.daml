@@ -8,6 +8,10 @@ template BankAccount
     
     where
         signatory bank, accountOwner
+        -- note that creating a key reference is optional, but creates a stable reference 
+        -- this is different than the contract ID which is an in built id and changes over time - i.e. new contract id's are created as old contracts are replaced (and archived) by new ones.
+        key (bank, accountOwner): (Party, Party) -- key must contain at least one party that is a signatory
+        maintainer key._1 -- this is saying that the bank (since ._1 is the 1st element of the tuple above) is the maintainer of the key
     
 
         choice Deposit: ContractId BankAccount
@@ -17,3 +21,25 @@ template BankAccount
             do
                 create this with
                     balance = balance + amount
+
+
+template BankService
+    with
+        bank: Party
+    where
+        signatory bank
+    
+        nonconsuming choice FindAccountById: BankAccount
+            with id: ContractId BankAccount
+            controller bank
+            do
+                fetch @BankAccount id
+
+        choice FindAccountByKey: BankAccount
+            with key: (Party, Party)
+            controller bank
+            do
+                account <- fetchByKey @BankAccount key
+                -- fetchByKey returns a tuple with 2 elements (contract Id Bank Account, Bank Account)....i.e. (id, payload)  
+                -- We want to return the 2nd item in the tuple which is the payload (1st item is the contract id which we don't need)
+                return account._2  
