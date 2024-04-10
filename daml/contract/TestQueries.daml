@@ -1,0 +1,70 @@
+module TestQueries where
+
+import Daml.Script
+import DA.List
+import Main
+
+testQueries: Script ()
+testQueries = script do
+    bank <- allocateParty "Bank"
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+
+    aliceAccountCid <- submitMulti [bank, alice] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 100.00
+
+    bobAccountCid <- submitMulti [bank, bob] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = bob
+            balance = 50.00
+
+    [(cid, contract)] <- query @BankAccount alice
+    debug "Bank accounts visible to Alice"
+    debug $ cid
+    debug $ contract
+    debug $ "-----------"
+
+    debug "Bob's contract ID and payload"
+    bobList <- query @BankAccount bob
+    debug $ bobList
+    debug "-------------"
+
+    debug "Visible bank accounts"
+    bankList <- query @BankAccount bank
+    debug $ bankList
+
+    debug "query by contract id where alice is the party requesting alice's account: "
+    aliceAccount <- queryContractId alice aliceAccountCid
+    debug $ aliceAccount
+
+    -- Note: bob querying alices account returns 'None' since this account not visible to Bob
+    debug "query by contract id where bob is the party requesting alice's account: "
+    aliceAccount <- queryContractId bob aliceAccountCid
+    debug $ aliceAccount
+
+    debug "query alice's account by key"
+    aliceAccount <- queryContractKey @BankAccount alice (bank, alice)
+    debug $ aliceAccount
+
+    debug "query bob's account by key"
+    bobAccount <- queryContractKey @BankAccount bob (bank, bob)
+    debug $ bobAccount
+
+    debug "query bob's account by alice" -- returns None
+    bobAccount <- queryContractKey @BankAccount alice (bank, bob)
+    debug $ bobAccount
+
+    -- filter for large accounts where balance >= 100
+    largeAccounts <- queryFilter
+        @BankAccount
+        bank
+        \account -> (account.balance >= 100.0)
+    
+    debug "LARGE ACCOUNTS >= $100"
+    debug $ largeAccounts
+    debug $ show (head largeAccounts)._2
+
