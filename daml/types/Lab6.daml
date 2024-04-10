@@ -1,0 +1,90 @@
+module Lab6 where
+
+import Daml.Script
+
+-- Problem 1
+
+-- define data type Account
+data Account = Account with 
+    ownerId: Text 
+    balance: Decimal 
+
+-- define typeclass SafeAccount
+-- 3 parameters, account, id, and balance
+-- 1 method, safeQuery which takes account and id as arguments and returns a balance
+class SafeAccount account id balance where 
+    safeQuery: account -> id -> balance
+
+-- Instance Declaration
+--  declares an instance of the SafeAccount type class for the Account type, where the id is of type Text and the balance is of type Optional Decimal.
+
+instance SafeAccount Account Text (Optional Decimal) where 
+    -- It implements the safeQuery function for this instance.
+    -- checks if the given id matches the ownerId of the account.
+    -- If they match, it returns Some account.balance, indicating that the balance is present.
+    -- If they don't match, it returns None, indicating that the balance is not available.
+    -- Some account.balance is constructing an Optional Decimal value where the balance of the account exists, while None would represent the absence of the balance.
+    safeQuery account id = if (id == account.ownerId) then Some account.balance else None 
+
+testSafeAccount = script do 
+
+    let myAccount = Account with 
+            ownerId = "123"
+            balance = 100.00
+
+        myBalance1: Optional Decimal = safeQuery myAccount "123"
+
+    debug $ myBalance1
+
+    let myBalance2: Optional Decimal = safeQuery myAccount "234"
+
+    debug $ myBalance2
+
+    return ()
+
+-- Problem 2
+
+-- defines a typeclass named Redeemable with two type parameters i and o.
+-- It declares a single function redeem that takes a value of type i and returns a value of type o.
+-- his type class is designed for types that are redeemable, meaning they can be converted into some other type.
+class Redeemable i  o where 
+    redeem: i -> o
+
+-- defines a data type AirtravelPoint representing air travel points.
+-- contains a single field count of type Int, representing the number of air travel points.
+data AirtravelPoint = AirtravelPoint with 
+    count: Int 
+-- defines a data type DiningPoint representing dining points.
+--  contains a single field count of type Int, representing the number of dining points.
+data DiningPoint = DiningPoint with 
+    count: Int
+
+-- Declares an instance of the Redeemable type class for the AirtravelPoint type, where the input type is AirtravelPoint and the output type is Decimal.
+-- implements the redeem function for this instance.
+-- Inside redeem, it converts the count field of the points argument to a Decimal using intToDecimal, then multiplies it by 10.00.
+instance Redeemable AirtravelPoint Decimal where 
+    redeem points = intToDecimal points.count * 10.00 
+
+-- declares an instance of the Redeemable type class for the DiningPoint
+-- implements the redeem function for this instance.
+-- Inside redeem, it converts the count field of the points argument to a Decimal using intToDecimal, then multiplies it by 5.00.
+instance Redeemable DiningPoint Decimal where 
+    redeem points = intToDecimal points.count * 5.0 
+
+-- takes an argument points of type a, where a is an instance of Redeemable.
+-- calls the redeem function defined in the Redeemable instance for the type of points, effectively converting points from its original type to the output type specified in the instance.
+redeemPoints: (Redeemable a b) => a -> b
+redeemPoints points = redeem points 
+
+testRedeemable = script do 
+    let myTravelPoints = AirtravelPoint with 
+            count = 500
+
+        myDiningPoints = DiningPoint with 
+            count = 5000
+
+        myTotalRedeemedPoints: Decimal = redeem myTravelPoints + redeem myDiningPoints
+
+    debug  myTotalRedeemedPoints 
+   
+    return()
