@@ -1,0 +1,79 @@
+module Lab5 where
+
+import Daml.Script
+import DA.Text (words)
+
+-- Problem 1
+musicalScript: Script ()
+musicalScript = script do
+
+    -- list of tuples (note, meaning)
+    let song = [("do", "a deer, a female deer"), ("re", "a drop of golden sun"), 
+                        ("mi", "a name, I call myself"), ("fa", "a long long way to run")]
+    -- extract each note from the songs list and add to a new list called notes
+    ---- the map function iterates through each tuple in the list
+    -- The `\x -> x._1` is a lambda function that takes a tuple x and returns its first element (accessed by ._1).
+    let notes = map (\x -> x._1 ) song
+    -- extract each meaning from the songs list and add it to a new list called meanings
+    -- similar to notes above except that it is accessing the 2nd element of the tuple (x._2)
+    let meanings = map (\x -> x._2) song
+
+    debug notes
+    debug meanings
+    debug $ reverse notes 
+    debug $ reverse meanings
+
+    return ()
+
+
+-- Problem 2
+
+-- calculates the frequency of a specific term in a given string
+termFrequency: Text -> Text -> Decimal
+termFrequency term string = do 
+    -- 'words string' splits the string into a list of words.
+    -- filter (==term) (words string) filters out only the words in the list that are equal to the term, and length counts how many of these words there are.
+    -- therefore, n represents the number of times the term appears in the string
+    --  d represents the number of words in the string
+    -- intToDecimal converts the integers n & d to decimals before doing the division since we ultimately need to calculate a decimal 
+    -- n divided by d is the frequency -  represents the number of times the term appears in the string divided by the number of words in the string
+    let n = length (filter (==term) (words string)) 
+        d = length (words string)
+    intToDecimal n / intToDecimal d
+
+-- calculate the frequency of a term in each text in a list of texts.
+multiTermFrequency: Text -> [Text] -> [Decimal]
+multiTermFrequency term listOfTexts = 
+   -- maps over each element in list of text and calculates the term frequency
+   -- accumulates this into a list of frequencies
+   map (\x -> termFrequency term x) listOfTexts
+   -- alternately we can use foldr to do the same thing
+   -- foldr (\x f -> (termFrequency term x) :: f ) [] listOfTexts
+
+--    Explanation of the alternate fold function above
+--    term is the term whose frequency is being calculated, and listOfTexts is the list of texts in which to find the frequency.
+--    foldr is used to process each text in listOfTexts. For each text x, it calculates the frequency of term in x using termFrequency term x.
+--    This builds a list of the frequencies and returns it.
+--    foldr is a function used to fold (or reduce) a list of texts into a single value. 
+--    It takes a binary function (the lambda function below), an initial accumulator value (the empty list '[]' below), and a list (list of texts) as arguments.
+--    the binary function, i.e. the lambda function below is doing the following:
+--         x represents an element of the list (listOfTexts)
+--         f represents the accumulator which is initially an empty list ('[]')
+--         Inside the lambda function, (termFrequency term x) calculates the frequency of term in the current text x 
+--         note: termFrequency is the function we wrote above in Problem 1 which we now get to re-use.
+--         ':: f' appends the calculated frequency to the accumulator f.
+--         The foldr function applies this lambda function to each element of listOfTexts, starting from the right (hence the name "fold right").
+
+
+
+testMultiTermFrequency : Script ()
+testMultiTermFrequency = script do 
+    let x = "hello"
+    let y = [ "hello from the other side I must have called a thousand times", 
+            "You say goodbye and I say hello hello hello",
+            "hello is it me you’re looking for",
+            "hello hello is anyone home"
+            ]
+
+    debug $ multiTermFrequency x y
+    return()
