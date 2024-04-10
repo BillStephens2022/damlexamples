@@ -1,0 +1,25 @@
+module TestBankService where
+
+import Daml.Script
+import Main
+
+testBankService: Script ()
+testBankService = script do
+    bank <- allocateParty "Bank"
+    alice <- allocateParty "Alice"
+    -- note submitMulti accepts 2 arguments which are lists
+    -- first list ([bank, alice]) has the parties with "actAs" authority
+    -- second list ([]), which is empty in this example, has the parties with the "readAs" authority
+    aliceAccountCid <- submitMulti [bank, alice] [] do
+        -- creates a BankAccount contract
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 100.00
+        
+    aliceAccount <- submit alice do
+        exerciseCmd aliceAccountCid Deposit
+            with
+                amount = 20.00
+
+    return ()
