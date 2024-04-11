@@ -1,0 +1,15 @@
+module Functors where
+
+import Daml.Script
+
+print: Script()
+print = script do
+    let
+        -- functors
+           -- returns [2,4,6] - a new array with each element of the original array multiplied by 2
+        x = (*2) <$> [1,2,3] 
+            -- returns [1,4,9] - a new array with each element of the original array squared
+        y = (^2) <$> [1,2,3] 
+  
+    debug x
+    debug y

@@ -1,0 +1,45 @@
+module Actions where
+
+import Daml.Script
+
+safeDiv: Int -> Int -> Optional Int
+safeDiv _ 0 = None
+safeDiv x y = Some (x / y)
+
+reduce: Int -> Optional Int
+reduce x
+    | x <= 0 = None
+    | otherwise = Some (x-1)
+
+testAction: Script ()
+testAction = script do
+    let
+        a = safeDiv 4 2
+        b = safeDiv 4 0
+        -- the bind operator '>>=' allows us to pipe the result of the safeDiv operation into the reduce function
+        -- safeDiv 4 2 is equal to 2.  2 is piped into the reduce function which subtracts 1 from 2 which results in 1.
+        c = safeDiv 4 2 >>= reduce
+        d = safeDiv 4 0 >>= reduce
+    
+    debug a
+    debug b
+    debug c
+    debug d
+
+testDoEquivalent: Script ()
+testDoEquivalent = script do
+    let
+        a = safeDiv 4 2
+        b = safeDiv 4 0
+        -- Using a do block to achieve the same result as c = safeDiv 4 2 >>= reduce
+        c = do
+            x <- safeDiv 4 2
+            reduce x
+        -- Using a do block to achieve the same result as d = safeDiv 4 0 >>= reduce
+        d = do
+            x <- safeDiv 4 0
+            reduce x
+    
+    debug c
+    debug d
+      
