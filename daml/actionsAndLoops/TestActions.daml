@@ -1,0 +1,94 @@
+module TestActions where
+
+import Daml.Script
+import BankService
+import DA.Foldable (mapA_)
+
+-- mapA - note that the return type of the test script is [()] which returns a list
+testMapA: Script [()]
+testMapA = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    bank <- allocateParty "Bank"
+
+    submitMulti [alice, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 100.00
+    
+    submitMulti [alice, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 50.00
+
+    submitMulti [bob, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = bob
+            balance = 70.00
+    
+    -- accountTuple <- query @BankAccount alice
+    -- debug accountTuple
+    -- query @BankAccount alice >>= debug
+    accounts <- query @BankAccount bank
+    mapA (\x -> debug x) accounts
+
+-- mapA_ - note that return type of the script in this case is an empty tuple () (similar to void)
+testMapA_: Script ()
+testMapA_ = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    bank <- allocateParty "Bank"
+
+    submitMulti [alice, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 100.00
+    
+    submitMulti [alice, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 50.00
+
+    submitMulti [bob, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = bob
+            balance = 70.00
+    
+    accounts <- query @BankAccount bank
+    mapA_ (\x -> debug x) accounts
+    mapA_ (\account -> debug account._2.balance) accounts
+
+-- forA - similar to foreach loop. note that return type of the script in this case is an array with an empty tuple ()
+testForA: Script [()]
+testForA = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    bank <- allocateParty "Bank"
+
+    submitMulti [alice, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 100.00
+    
+    submitMulti [alice, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = alice
+            balance = 50.00
+
+    submitMulti [bob, bank] [] do
+        createCmd BankAccount with
+            bank
+            accountOwner = bob
+            balance = 70.00
+    
+    accounts <- query @BankAccount bank
+    -- forA - similar to a foreach loop in other languages
+    forA accounts (\x -> debug x) -- first argument is a list, 2nd argument is the function, in this case a lambda function
