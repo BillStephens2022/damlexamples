@@ -1,0 +1,120 @@
+module Lab2 where 
+-- Note this is a copy of Lab1 with some enhancements
+
+-- Problem 1
+    -- added id to CLPApplication, also updated Submit Application with customerId
+    -- added key to CLPAccount template with 2 elements: airline as the party and the id.  Airline is the maintainer.
+    -- replaced 2 choices (for AcceptApplication and RejectApplication) with one choice for Review Application that returns an Optional (ContractId CLPAccount).
+    -- In this ReviewApplication choice, the airline checks if the customer already has CLPAccount using (airline, id) as the key. If it doesn't, then it creates a new CLPAccount for the customer. If it does, then the application is rejected and no account is created.
+-- Problem 2
+    -- Modify the CLPAccount template to add a choice named AddPoints that takes an int as the number of points to be added to the account and returns ContractId CLPAccount. Make airline as the controller of this choice.
+import DA.Optional
+
+template CLPApplication 
+    with 
+        customer: Party 
+        airline: Party
+        id: Text
+        name: Text
+        address: Text
+        email: Text
+        phone: Optional Text
+        timestamp: Time 
+        dob: Date 
+       
+    where 
+        signatory customer
+        observer airline 
+         
+        choice SubmitApplication: ContractId CLPApplication 
+            with 
+                appCustomer: Party 
+                appAirline: Party
+                customerId: Text
+                customerName: Text
+                customerAddress: Text
+                customerEmail: Text
+                customerPhone: Text
+                appTimeStamp: Time 
+                customerDob: Date 
+            controller customer 
+                do 
+                    create CLPApplication  
+                        with 
+                            customer = appCustomer
+                            airline = appAirline
+                            id = customerId
+                            name = customerName
+                            address = customerAddress
+                            email = customerEmail
+                            phone = Some customerPhone
+                            timestamp = appTimeStamp
+                            dob = customerDob 
+
+        -- Replaced the below 2 commented out choices with 1 new one for ReviewApplication           
+        -- choice AcceptApplication: ContractId CLPAccount 
+        --     with 
+        --         points: Int
+        --         accountTimestamp: Time 
+        --     controller airline 
+        --         do 
+        --             create CLPAccount 
+        --                 with 
+        --                     ..
+
+        -- choice RejectApplication: Text 
+        --     controller airline 
+        --         do 
+        --             return ("Application rejected")
+        
+        choice ReviewApplication : Optional (ContractId CLPAccount)
+            controller airline
+                do
+                    account <- lookupByKey @CLPAccount (airline, id)
+                    now <- getTime
+                    if (isSome account) then
+                        return None
+                    else do
+                        account <- create CLPAccount with
+                            timestamp = now
+                            points = 0
+                            ..
+                        return (Some account)
+
+
+template CLPAccount 
+    with
+        customer: Party 
+        airline: Party 
+        id: Text
+        name: Text
+        address: Text
+        email: Text
+        phone: Optional Text
+        timestamp: Time 
+        dob: Date 
+        points: Int
+
+    where 
+        signatory customer, airline
+
+        key (airline, id): (Party, Text)
+        maintainer key._1
+
+        -- Problem 2
+        -- Declares a choice named 'AddPoints' that returns a contractID of type CLPAccount
+        choice AddPoints: ContractId CLPAccount
+            -- specifies that the choice takes an integer parameter named 'newPoints', representing the number of points to be added to the account
+            with
+                newPoints: Int
+            -- indicates that the airline party controls the execution of this choice
+            controller airline
+            -- 'do' indicates the beginning of the code block for this choice
+            do
+                -- creates a new instance of the CLPAccount template with the updated points
+                create CLPAccount with
+                    -- adds the value of newPoints to the existing value of points
+                    points = points + newPoints
+                    -- '..' represents any other fields or parameters that may exist in the CLPAccount template but are not explicitly shown here. These would be carried over from the existing CLPAccount instance.
+                    ..
+
