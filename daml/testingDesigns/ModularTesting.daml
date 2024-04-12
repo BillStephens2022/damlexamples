@@ -21,7 +21,7 @@ setupParties = do
 setupContracts: Party -> Script (ContractId SocialNetworkUser)
 setupContracts p = do
     submit p do
-        createCmd SocialNetworkUser with username = p; following = []
+        createCmd SocialNetworkUser with username = p; following = []; alias=""
 
 -- happy path: alice should be able to exercise a choice to follow a user
 canFollow: Script (ContractId SocialNetworkUser)
