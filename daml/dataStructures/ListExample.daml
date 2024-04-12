@@ -12,8 +12,13 @@ listTest = script do
 
     rangeList = [10 .. 20]
     evenList = [2,4 .. 20]
+    longList = [1 .. 100]
     -- concatenate lists into new list
     fruitAndVeggieList = fruitList <> veggieList
+
+    -- Define a function to filter the numbers
+    getFilteredNumbers : [Int] -> [Int]
+    getFilteredNumbers numberList = [x | x <- numberList, x % 7 == 3]
   
   
   -- head shows 1st item in the list
@@ -73,4 +78,4 @@ listTest = script do
   debug $ "product of numbers in evenList: " <> show (product evenList)
   debug $ "using replicate to show a list of 3 tens: " <> show (replicate 3 10)
 
- 
+  debug $ "getting all numbers from 1 to 100 whose remainder when divided by 7 is 3: " <> show (getFilteredNumbers longList)
