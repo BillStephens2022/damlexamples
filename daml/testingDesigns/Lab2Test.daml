@@ -1,7 +1,7 @@
 module Lab2Test where 
 
 import Daml.Script
-import Lab1
+import Lab2
 import DA.Date (date, Month(Jan))
 import DA.Optional (fromSome)
 
