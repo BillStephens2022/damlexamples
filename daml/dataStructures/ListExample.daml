@@ -7,15 +7,15 @@ listTest: Script ()
 listTest = script do
   let
     intList = [1,2,4]
-    fruitList = ["orange", "apple", "banana"]
+    fruitList = ["orange", "apple", "banana", "pear", "kiwi", "watermelon"]
     veggieList = ["carrot", "potato"]
 
     rangeList = [10 .. 20]
     evenList = [2,4 .. 20]
     -- concatenate lists into new list
     fruitAndVeggieList = fruitList <> veggieList
-
-
+  
+  
   -- head shows 1st item in the list
   debug $ "Head: " <> show (head fruitList)
   -- tail shows everything after the head
@@ -43,8 +43,34 @@ listTest = script do
   -- print entire list that was created using the ".." notation above when declared & assigned
   debug $ "range from 10 to 20: " <> show (rangeList)
   debug $ "even numbers from 2 to 20: " <> show (evenList)
+   -- List Comprehension
+  debug $ "square each number in list of evenList: " <> show ([x^2 | x <- evenList])
+
+  
   -- adds item to beginning of list
   debug $ "prepend: " <> show ("mango" :: fruitList)
   debug $ "range: " <> show (fruitAndVeggieList)
   debug $ fruitAndVeggieList
-  
+  -- Get by index # (instead of using head & tail)
+  debug $ "Get apple from fruitList: " <> show (fruitList !! 1)
+  debug $ "Get banana fruitList: " <> show (fruitList !! 2)
+  debug $ "Get kiwi from fruitList: " <> show (fruitList !! 4)
+  -- get kiwi using a combination of head and tails
+  debug $ "Get kiwi using head and tails: " <> show (head(tail(tail(tail(tail(fruitList))))))
+
+ -- just experimenting / practicing below
+  debug $ "length of fruitList: " <> show (length fruitList)
+  debug $ "is kiwi in my fruitList? " <> show ("kiwi" `elem` fruitList) -- True
+  debug $ "is grapefruit in my fruitList? " <> show ("grapefruit" `elem` fruitList) --False
+  debug $ "is fruitList null? " <> show (null fruitList)
+  debug $ "reversed fruitList: " <> show (reverse fruitList)
+  debug $ "sort fruitList: " <> show (sort fruitList)
+  debug $ "take 3 fruits from beginning of list: " <> show (take 3 fruitList)
+  debug $ "drop the first 2 fruits from the beginning of list: " <> show (drop 2 fruitList)
+  debug $ "sum of numbers in rangeList: " <> show (sum rangeList)
+  debug $ "sum of numbers in evenList: " <> show (sum evenList)
+  debug $ "product of numbers in rangeList: " <> show (product rangeList)
+  debug $ "product of numbers in evenList: " <> show (product evenList)
+  debug $ "using replicate to show a list of 3 tens: " <> show (replicate 3 10)
+
+ 
