@@ -1,0 +1,47 @@
+module SocialNetworkUser where
+
+import Daml.Script
+
+template SocialNetworkUser with
+    username: Party
+    following: [Party]
+  where
+    signatory username
+    observer following
+
+    choice Follow: ContractId SocialNetworkUser with
+        userToFollow: Party
+      controller username
+      do
+        assertMsg "You cannot follow yourself" (userToFollow /= username)
+        assertMsg "You cannoot follow the same user twice" (userToFollow `notElem` following)
+        create this with following = userToFollow :: following
+
+test: Script ()
+test = script do
+
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+
+    aliceCid <- submit alice do
+        createCmd SocialNetworkUser with username = alice; following = []
+    
+    submit bob do
+        createCmd SocialNetworkUser with username = bob; following = []
+    
+    newAliceCid <- submit alice do
+        exerciseCmd aliceCid $ Follow bob
+
+    -- alice cannot exercise choices on an archived contract
+    submitMustFail alice do
+        exerciseCmd aliceCid $ Follow bob
+    
+    -- alice cannot follow herself
+    submitMustFail alice do
+        exerciseCmd newAliceCid $ Follow alice
+    
+    -- alice cannot follow bob twice
+    submitMustFail alice do
+        exerciseCmd newAliceCid $ Follow bob
+    
+    return ()
