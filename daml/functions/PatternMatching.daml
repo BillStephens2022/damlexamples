@@ -1,0 +1,42 @@
+module PatternMatching where
+
+import Daml.Script
+
+-- Pattern Matching using an Int
+lucky: Int -> Text
+lucky 7 = "LUCKY NUMBER 7!!!"
+lucky x = "Sorry you're out of luck pal!"
+
+sayMe: Int -> Text
+sayMe 1 = "One!"
+sayMe 2 = "Two!"
+sayMe 3 = "Three!"
+sayMe 4 = "Four!"
+sayMe 5 = "Five!"
+sayMe x = "Not between 1 and 5"
+
+factorial : Int -> Int
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
+
+-- Pattern Matching using Tuples of Decimal Type
+addVectors : (Decimal, Decimal) -> (Decimal, Decimal) -> (Decimal, Decimal)
+addVectors (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+
+
+
+testIntPatterns: Script ()
+testIntPatterns = script do
+    debug $ "'lucky' function test result using 8: " <> lucky 8
+    debug $ "'lucky' function test result using 7: " <> lucky 7
+    debug $ "'sayMe' function test result using 2: " <> sayMe 2
+    debug $ "'sayMe' function test result using 4: " <> sayMe 4
+    debug $ "'sayMe' function test result using 7: " <> sayMe 7
+    debug $ "'factorial' factorial test result using 5: " <> show (factorial 5)
+    debug $ "'factorial' factorial test result using 12: " <> show (factorial 12)
+
+testTuplePatterns : Script ()
+testTuplePatterns = script do
+  debug $ addVectors (46.25, 7.5) (22.75, 34.5)
+  debug $ addVectors (211.0, 7.5) ((-179.0), 91.1)
+  debug $ addVectors (16.0, 66.0) (401.0, 1906.0)
