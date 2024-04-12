@@ -1,6 +1,15 @@
 module DataTypeExample where
 import Daml.Script
 
+-- Primitive Data Types
+  -- Int
+  -- Decimal
+  -- Text
+  -- Bool
+  -- Date
+  -- Time
+  -- RelTime (differences between 2 time values)
+
 datatype_test : Script ()
 datatype_test = script do
     let
