@@ -1,0 +1,41 @@
+module ModularTesting where
+
+import Daml.Script
+import SocialNetworkUser
+
+-- allocate parties
+data TestParties = TestParties with
+    alice: Party
+    bob: Party
+
+setupParties: Script TestParties
+setupParties = do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    return $ TestParties
+        with
+            alice = alice
+            bob = bob
+
+-- create contracts
+setupContracts: Party -> Script (ContractId SocialNetworkUser)
+setupContracts p = do
+    submit p do
+        createCmd SocialNetworkUser with username = p; following = []
+
+-- happy path: alice should be able to exercise a choice to follow a user
+canFollow: Script (ContractId SocialNetworkUser)
+canFollow = do
+    testParties <- setupParties
+    testContract <- setupContracts testParties.alice
+    submit testParties.alice do
+        exerciseCmd testContract $ Follow testParties.bob
+
+-- unhappy path: alice shouldn't be able to follow herself
+cantFollowMyself: Script ()
+cantFollowMyself = do
+    testParties@TestParties{..} <- setupParties  -- '{..}' similar to detstructuring extracts all test parties so they can be use as local variables (i.e. can now use 'alice' or 'bob' instead of 'testParties.alice' and 'testParties.bob')
+    testContract <- setupContracts alice
+    submitMustFail alice do
+        exerciseCmd testContract $ Follow alice
+    return ()
