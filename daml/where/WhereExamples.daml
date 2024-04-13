@@ -1,0 +1,30 @@
+module WhereExamples where
+
+import Daml.Script
+
+bmiTell: Decimal -> Decimal -> Text
+bmiTell weight height 
+    | bmi <= skinny = "You're underweight, eat more!"
+    | bmi <= normal = "Looking good!"
+    | bmi <= fat = "You're overweight, let's work out!"
+    | otherwise = "You're obese - go see a doctor."
+    where bmi = weight / height ^ 2
+          skinny = 18.5
+          normal = 25.0
+          fat = 30.0
+
+badGreeting: Text
+badGreeting = "Oh! Pfft. It's you..."
+niceGreeting: Text
+niceGreeting = "Hello! So very nice to see you, "
+greet: Text -> Text
+greet "Bill" = niceGreeting <> "Bill!"
+greet "Carolyn" = niceGreeting <> "Carolyn!"
+greet name = badGreeting <> name <> ", right??"
+
+testWhereFunctions: Script ()
+testWhereFunctions= script do
+    debug $ bmiTell 45.0 1.5
+    debug $ greet "Bill"
+    debug $ greet "Carolyn"
+    debug $ greet "Jimmy"
