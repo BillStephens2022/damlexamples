@@ -2,6 +2,7 @@ module WhereExamples where
 
 import Daml.Script
 
+-- using where clause for multiple variables (i.e. bmi, skinny, normal, fat)
 bmiTell: Decimal -> Decimal -> Text
 bmiTell weight height 
     | bmi <= skinny = "You're underweight, eat more!"
@@ -12,6 +13,10 @@ bmiTell weight height
           skinny = 18.5
           normal = 25.0
           fat = 30.0
+
+-- function to calculate bmis using 'let' in a list comprehension
+calcBmis : [(Decimal, Decimal)] -> [Decimal]
+calcBmis xs = [bmi | (w, h) <- xs, let bmi = w / h ^ 2]
 
 badGreeting: Text
 badGreeting = "Oh! Pfft. It's you..."
@@ -24,7 +29,9 @@ greet name = badGreeting <> name <> ", right??"
 
 testWhereFunctions: Script ()
 testWhereFunctions= script do
+    debug $ "Your BMI is: " <> show (calcBmis [(45.0, 1.5)])
     debug $ bmiTell 45.0 1.5
     debug $ greet "Bill"
     debug $ greet "Carolyn"
     debug $ greet "Jimmy"
+    

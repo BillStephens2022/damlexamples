@@ -1,0 +1,26 @@
+module CaseStatement where
+
+import Daml.Script
+
+-- pattern matching using case statement
+describeList: [a] -> Text
+describeList ls = "The list is " <> case ls of
+  [] -> "empty." 
+  [x]-> "a singleton list."
+  xs -> "a longer list."
+
+-- another function that does the same thing
+describeList2: [a] -> Text
+describeList2 ls = "The list is " <> what ls
+  where what [] = "empty."
+        what [x] = "a singleton list."
+        what xs = "a longer list."
+
+testFunctions: Script ()
+testFunctions = script do
+    debug $ show (describeList [])
+    debug $ show (describeList ["Hi there"])
+    debug $ show (describeList ["W", "X", "Y"])
+    debug $ show (describeList2 [])
+    debug $ show (describeList2 ["Hi there"])
+    debug $ show (describeList2 ["W", "X", "Y"])
