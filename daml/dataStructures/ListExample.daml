@@ -13,6 +13,8 @@ listTest = script do
     rangeList = [10 .. 20]
     evenList = [2,4 .. 20]
     longList = [1 .. 100]
+    listOfLists = [[1,3,5,2,3,1,2,4,5], [1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]]
+    
     -- concatenate lists into new list
     fruitAndVeggieList = fruitList <> veggieList
 
@@ -79,3 +81,9 @@ listTest = script do
   debug $ "using replicate to show a list of 3 tens: " <> show (replicate 3 10)
 
   debug $ "getting all numbers from 1 to 100 whose remainder when divided by 7 is 3: " <> show (getFilteredNumbers longList)
+  -- list comprehension on list of lists.  First we break down the listOfLists into 
+  -- individual lists (with variable name xx), Then we break each list down into its 
+  -- individual elements (with variable name x)
+  debug $ "getting even numbers from list of lists: " <> show ([[ x | x <- xx, x % 2 == 0 ] | xx <- listOfLists ])
+ 
+  

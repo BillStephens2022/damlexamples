@@ -21,6 +21,15 @@ doubleUs x y = doubleMe x + doubleMe y
 -- infix_doubleMe x  = x `doubleMe`
 -- infix_doubleUs x y = x `doubleUs` y
 
+-- comparison function returning an 'Ordering' data type
+-- Ordering has 3 possible values: GT (greater than), LT (less than), or EQ (equal).
+-- this function will allow you to compare two values and it will return how 1st argument compares to 2nd argument
+-- for example, if 1st argument is greater than second argument, it will return 'GT'
+myCompare : Int -> Int -> Ordering
+myCompare a b
+  | a == b = EQ
+  | a <= b = LT
+  | otherwise = GT
 
 testFunctions: Script ()
 testFunctions = script do
@@ -34,6 +43,9 @@ testFunctions = script do
   debug $ (\x y z -> (3 * x ^ 2) + (2 * y) + z) 1 2 3
   -- using 'infix' notation to call function
   debug $ 3 `doubleUs` 4
+  debug $ 3 `myCompare` 2
+  debug $ 3 `myCompare` 3
+  debug $ 3 `myCompare` 5
   
 
 

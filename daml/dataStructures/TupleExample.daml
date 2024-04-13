@@ -9,6 +9,19 @@ tupleTest = script do
     twoTuple = ("abc", 123)
     threeTuple = ("a", 456, True)
     nTuple = (1, "hello", True, [3,4])
+    -- lists - in test script below we 'zip' this two lists into 
+    -- a combined list of tuples
+    -- which joins matching elements into pairs... [(1,5),(2,5),(3,5)...etc]
+    listA = [1,2,3,4,5]
+    listB = [5,5,5,5,5]
+
+    -- function to find a right triangle where:
+      -- lengths of 3 sides are all integers
+      -- the length of each side is <= 10
+      -- the perimeter of the triangle is 24
+    -- note that we only use [1..10], but then we say a is [1..c] and b is [1..a] - this ensures c is longest side and we only get one answer back.
+    -- if we had used [1..10] for each side we would get every combination of (6,8,10) - i.e. (8,6,10) etc
+    rightTriangles = [ (a,b,c) | c <- [1..10], a <- [1..c], b <- [1..a], a^2 + b^2 == c^2, a + b + c == 24]
 
   debug $ fst twoTuple
   debug $ snd twoTuple
@@ -20,4 +33,7 @@ tupleTest = script do
   debug $ nTuple._1
   debug $ nTuple._4
 
+  debug $ "Zipping two lists into tuples: " <> show (zip listA listB)
+  debug $ "getting right triangle sides where perimeter is 24 and sides <= 10: " <> show rightTriangles
+  
   return ()
