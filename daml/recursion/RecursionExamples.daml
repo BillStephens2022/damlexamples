@@ -1,0 +1,22 @@
+module RecursionExamples where
+
+import Daml.Script
+
+fibonacci : Int -> Int
+fibonacci n =
+  if n <= 1 then n
+  else fibonacci (n - 1) + fibonacci (n - 2)
+
+-- Define a function to find the maximum item in a list
+maximum' : (Ord a) => [a] -> a
+maximum' [] = error "maximum of empty list!"
+maximum' [x] = x
+maximum' (x::xs) = if x >= maxTail then x else maxTail
+  where maxTail = maximum' xs
+
+
+testFunctions: Script ()
+testFunctions = script do
+    debug $ fibonacci 10
+    debug $ show (maximum' [42, 10, 69, 19, 5, 202, 36, 72])
+
