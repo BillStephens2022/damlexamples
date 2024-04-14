@@ -16,9 +16,33 @@ testFibonacci = script do
 moduloUsingMap: [Int] -> Int -> [Int]
 moduloUsingMap x y = map (% y ) x
 
-testModuloUsingMap: Script ()
-testModuloUsingMap = script do
-    debug $ moduloUsingMap [14, 15, 19, 20] 3
+-- filter out numbers greater than x
+-- where x is an Int and y is a list of Ints
+-- returns a filtered array of ints
+filterGreaterThan: Int -> [Int] -> [Int]
+filterGreaterThan x y = filter (> x) y
+
+-- filter even numbers out of a list of integers
+filterEvens: [Int] -> [Int]
+filterEvens xs = filter (\ x -> x % 2 == 0) xs
+
+-- map function adding a number to every number in a list
+addSomethingToEveryNumberInList: Int -> [Int] -> [Int]
+addSomethingToEveryNumberInList n intList = map (+n) intList
+
+-- square every number in a list of lists and return the squared list of lists
+squareEveryNumberInListOfLists: [[Int]] -> [[Int]]
+squareEveryNumberInListOfLists xxs = map (map (^2)) xxs
+
+testMaps: Script ()
+testMaps = script do
+    debug $ "divide every number by 3 and return remainder using map & modulo: " <> show (moduloUsingMap [14, 15, 19, 20] 3)
+    debug $ "Add 3 to every number in list using 'map': " <> show (addSomethingToEveryNumberInList 3 [1,5,3,1,6])
+    debug $ "square every number in a list of lists: " <> show (squareEveryNumberInListOfLists [[1,2],[3,4,5,6],[7,8]])
+testFilters: Script()
+testFilters = script do
+    debug $ "Filtering list for numbers greater than 3: " <> show (filterGreaterThan 3 [1,5,3,2,1,6,4,3,2,1])
+    debug $ "Filtering even numbers from list of numbers: " <> show (filterEvens [1..20])
 
 -- folds
 -- foldl iterates from left to right
