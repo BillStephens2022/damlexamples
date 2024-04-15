@@ -1,0 +1,41 @@
+module CustomTypeClass where
+
+import Daml.Script
+import DA.Text (sha256)
+
+-- example of a Record
+data PersonalRecord = PersonalRecord with
+    name: Text
+    id: Int
+      deriving (Show, Eq)
+
+-- custom type class
+class Hashable i o where
+    hash : i -> o
+
+-- make Personal Record an instance of Show
+-- doing this way we can customize the show representation
+-- you can do this instead of using 'deriving' Show which will be the default representation
+-- instance Show PersonalRecord where
+--     -- deconsstructing PersonalRecord in the curly braces 
+--     show PersonalRecord {name,id} = "PersonalRecord {name = " <> show name <> ", id = 123" <> show id <> "}"
+
+-- to make PersonalRecord an instance of the Hashable Type Class
+instance Hashable PersonalRecord Text where
+    hash myRecord = sha256 (myRecord.name <> show(myRecord.id))
+
+test = script do
+    let
+        someData = PersonalRecord with
+            name = "Alice"
+            id = 123
+    
+    debug $ someData
+
+     -- Calculate the hash of the PersonalRecord instance
+    let hashedData : Text = hash someData
+
+    -- Output the hash for verification
+    debug $ "Hash of PersonalRecord: " <> hashedData
+
+

@@ -1,0 +1,30 @@
+module VariantTypes where
+
+import Daml.Script
+
+data Floor a = Floor a
+    deriving (Eq, Show)
+
+testFL: Script ()
+testFL = script do
+    let
+        fl : Floor Int
+        fl = Floor 0
+
+    debug $ fl
+
+data MySumType = MySumConstructor1 Int
+                 | MySumConstructor2 (Text, Bool)
+                    deriving (Eq, Show)
+
+testMST: Script ()
+testMST = script do
+    let
+        mySum1 = MySumConstructor1 17
+        mySum2 = MySumConstructor2 ("it's a sum", True)
+    
+    debug $ mySum1
+    debug $ mySum2
+
+
+
