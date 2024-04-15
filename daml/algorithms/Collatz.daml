@@ -23,9 +23,7 @@ collatzHelper seq =
 -- for all numbers between 1 and 100 how many Collatz chains have a
 -- length greater than 15
 numLongChains: Int
-numLongChains = length (filter isLong (map collatzSequence [1..100]))
-    where isLong xs = length xs  > 15
-
+numLongChains = length (filter (\xs -> length xs > 15) (map collatzSequence [1..100]))
 testCollatz: Script ()
 testCollatz = script do
     debug $ "Collatz Sequence 15: " <> show (collatzSequence 18)

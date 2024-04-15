@@ -1,0 +1,26 @@
+module Folds where
+
+import Daml.Script
+
+-- xs is the list to be folded
+-- 0 is the starting value of the accumulator
+-- (\acc x + acc + x) is the binary function
+
+sumList: [Int] -> Int
+sumList xs = foldl (\acc x -> acc + x) 0 xs
+
+-- alternate way of doing same function as above, more succinct
+sumListSuccinct: [Int] -> Int
+sumListSuccinct = foldl (+) 0
+
+testFunctions: Script ()
+testFunctions = script do
+-- in list passed to function below, first the 0 and the 3 are passed 
+-- to the binary function as the acc and x parameters, respectively.
+-- the new value of acc will now be 3 and then 5 will be passed as x.  
+-- acc will then be updated to 8... and so on...
+    debug $ sumList [3,5,2,1]
+    debug $ sumListSuccinct [3,5,2,1]
+    -- and you don't even really need a function since built in sum function does this on its own
+    debug $ sum [3,5,2,1]
+    
