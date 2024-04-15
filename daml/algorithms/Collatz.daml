@@ -1,0 +1,34 @@
+module Collatz where
+
+import Daml.Script
+import DA.List
+
+-- Function to generate the Collatz sequence for a given integer
+collatzSequence : Int -> [Int]
+collatzSequence n = 
+  if n <= 0
+  then []
+  else collatzHelper [n]
+
+-- Helper function to generate the Collatz sequence recursively
+collatzHelper : [Int] -> [Int]
+collatzHelper seq =
+  let lastNum = last seq
+  in if lastNum == 1
+     then seq
+     else if lastNum % 2 == 0
+          then collatzHelper (seq ++ [lastNum / 2])
+          else collatzHelper (seq ++ [3 * lastNum + 1])
+
+-- for all numbers between 1 and 100 how many Collatz chains have a
+-- length greater than 15
+numLongChains: Int
+numLongChains = length (filter isLong (map collatzSequence [1..100]))
+    where isLong xs = length xs  > 15
+
+testCollatz: Script ()
+testCollatz = script do
+    debug $ "Collatz Sequence 15: " <> show (collatzSequence 18)
+    debug $ "number of integers between 1 and 100 that produce Collatz chains that have a length greater than 15: " <> show numLongChains
+
+

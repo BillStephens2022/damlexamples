@@ -47,6 +47,7 @@ testMaps = script do
     debug $ "Add 3 to every number in list using 'map': " <> show (addSomethingToEveryNumberInList 3 [1,5,3,1,6])
     debug $ "square every number in a list of lists: " <> show (squareEveryNumberInListOfLists [[1,2],[3,4,5,6],[7,8]])
     debug $ "sum of the odd squares that are less than 10,000: " <> show (sumOfOddSquares(10000))
+    
 testFilters: Script()
 testFilters = script do
     debug $ "Filtering list for numbers greater than 3: " <> show (filterGreaterThan 3 [1,5,3,2,1,6,4,3,2,1])
