@@ -1,0 +1,72 @@
+module TryCatch where
+
+import Daml.Script
+import DA.Exception
+
+template SocialNetworkUser
+    with
+        username: Party
+        following: [Party]
+        alias: Text
+    where
+        signatory username
+        observer following
+
+        key username : Party
+        maintainer key
+
+        ensure alias /= ""
+
+        choice Follow: ContractId SocialNetworkUser
+            with
+                userToFollow: Party
+            controller username
+            do
+                assertMsg "You cannot follow yourself" (userToFollow /= username)
+                assertMsg "You cannot follow the same user twice" (notElem userToFollow following)
+                create this with following = userToFollow :: following
+        
+        nonconsuming choice ChangeAlias: Either Text (ContractId SocialNetworkUser)
+            with
+                newAlias: Text
+            controller username
+            do
+                try do  
+                    archive self
+                    cid <- create this with alias = newAlias
+                    let result = Right cid
+                    pure result
+                catch
+                    -- to use the exception below, must import DA.Exception module
+                    -- use the "_" as the catch all parameter if you don't care if the exception carries any data
+                    (PreconditionFailed _) -> do
+                        let result = Left "Alias cannot be an empty string. Try Again"
+                        pure result
+                        
+
+test = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+
+    aliceCid <- submit alice do
+        createCmd SocialNetworkUser with
+            username = alice
+            following = []
+            alias = "aliceAlias"
+
+    bobCid <- submit bob do
+        createCmd SocialNetworkUser with
+            username = bob
+            following = []
+            alias = "bobAlias"
+
+    -- succeeds since valid alias is passed      
+    submit alice do
+        exerciseCmd aliceCid ChangeAlias with newAlias = "ExpertDamler"
+    
+    -- fails since invalid alias (an empty string) is passed which doesn't
+    -- meet the precondition in the ensure statement of the template
+    submit bob do
+        exerciseCmd bobCid ChangeAlias with newAlias = ""
+
+    
