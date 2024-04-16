@@ -15,6 +15,10 @@ area: Shape -> Decimal
 area (Circle _ radius) = pi * radius ^ 2
 area (Rectangle (Point x1 y1) (Point x2 y2)) = (abs (x2 - x1)) * (abs (y2 - y1))
 
+nudge: Shape -> Decimal -> Decimal -> Shape
+nudge (Circle (Point x y) r) a b = Circle (Point (x+a) (y+b)) r
+nudge (Rectangle (Point x1 y1) (Point x2 y2)) a b = Rectangle (Point (x1+a)(y1+b))(Point(x2+a)(y2+b))
+
 testArea: Script ()
 testArea = script do
     debug $ "The area of the circle with radius 10 is: " <> show (area(Circle (Point 0.0 0.0) 10.0))
@@ -22,3 +26,7 @@ testArea = script do
 
     -- create 4 concentric circles with different radii
     debug $ show (map (Circle (Point 10.0 20.0)) [4.0,5.0,6.0,8.0])
+
+    -- nudge shape to a new location
+    debug $ "nudged circle at point 0,0 to point 4,6: " <> show (nudge (Circle (Point 0.0 0.0) 10.0) 4.0 6.0)
+    debug $ "nudged rectangle at point ((0,0) & (10,5)) to point ((5,10) & (15, 15)): " <> show (nudge (Rectangle (Point 0.0 0.0) (Point 10.0 5.0)) 5.0 10.0)
