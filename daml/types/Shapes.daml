@@ -1,0 +1,24 @@
+module Shapes where
+
+import Daml.Script
+
+data Point = Point {x: Decimal, y: Decimal} deriving (Show)
+data Shape = Circle { centerPoint: Point, radius : Decimal }
+           | Rectangle { topLeftPoint : Point, bottomRightPoint : Point }
+           deriving (Show)
+
+pi : Decimal
+pi = 3.14159
+
+
+area: Shape -> Decimal
+area (Circle _ radius) = pi * radius ^ 2
+area (Rectangle (Point x1 y1) (Point x2 y2)) = (abs (x2 - x1)) * (abs (y2 - y1))
+
+testArea: Script ()
+testArea = script do
+    debug $ "The area of the circle with radius 10 is: " <> show (area(Circle (Point 0.0 0.0) 10.0))
+    debug $ "The area of the rectangle with length of 5 and width of 10 is: " <> show (area(Rectangle (Point 0.0 0.0) (Point 10.0 5.0)))
+
+    -- create 4 concentric circles with different radii
+    debug $ show (map (Circle (Point 10.0 20.0)) [4.0,5.0,6.0,8.0])
