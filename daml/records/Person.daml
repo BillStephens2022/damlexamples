@@ -1,0 +1,23 @@
+module Person where
+
+import Daml.Script
+
+data Person = Person
+  { firstName : Text
+  , lastName : Text
+  , age : Int
+  , height : Decimal
+  , phone : Text
+  , favoriteIceCream : Text
+  } deriving (Show)
+
+
+testPerson : Script ()
+
+testPerson = script do
+    let guy = Person "Marsellus" "Wallace" 42 184.2 "555-5555" "pistachio"
+    debug $ show guy
+    debug $ show guy.firstName
+    debug $ show guy.favoriteIceCream
+
+

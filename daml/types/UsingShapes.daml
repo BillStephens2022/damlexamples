@@ -1,5 +1,5 @@
 module UsingShapes where
-
+-- file created to demonstrate example of importing a custom module and using it.
 import Daml.Script
 -- import Shapes module (i.e. the Shapes.daml file we created)
 import Shapes
