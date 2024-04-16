@@ -1,0 +1,110 @@
+module AccountBalance where
+
+import Daml.Script
+
+template Asset
+    with
+        issuer: Party
+        owner: Party
+        amount: Decimal
+    where
+        signatory issuer, owner
+        ensure amount > 0.0
+    
+        key (issuer, owner): (Party, Party)
+        maintainer key._1
+
+        choice Asset_Transfer: ContractId AssetTransferProposal
+            with
+                recipient: Party
+                transferAmount: Decimal
+            controller owner
+            do
+                create this with amount = amount - transferAmount
+
+                create AssetTransferProposal with
+                    amount = transferAmount
+                    ..
+
+template AssetTransferProposal
+    with
+        issuer: Party
+        owner: Party
+        amount: Decimal
+        recipient: Party
+    where
+        signatory issuer, owner
+        observer recipient
+        ensure amount > 0.0
+
+        choice AssetTransferProposal_Accept: ContractId Asset
+            controller recipient
+            do
+                assetCid <- lookupByKey @Asset (issuer, recipient)
+                case assetCid of
+                    None -> create Asset with
+                        owner = recipient
+                        ..
+                    Some assetCid -> do
+                        asset <- fetch assetCid
+                        archive assetCid
+                        create Asset with
+                            owner = recipient
+                            amount = asset.amount + amount
+                            ..
+        
+        choice AssetTransferProposal_Reject: ContractId AssetTransferProposal
+            controller recipient
+            do
+                create this with recipient = owner
+
+data TestParties = TestParties with
+    alice: Party
+    bob: Party
+    ub: Party
+    eb: Party
+
+setupTestParties = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    ub <- allocateParty "US_Bank"
+    eb <- allocateParty "EU_Bank"
+
+    pure TestParties with ..
+
+testAccountBalance = script do
+    -- destructuring party names in line below so we don't need to type testParties.alice, testParties.bob, etc
+    (testParties@TestParties{..}) <- setupTestParties
+
+    ubAssetCid <- submit ub do
+        createCmd Asset with
+            issuer = ub
+            owner = ub
+            amount = 1000.0
+    
+    ubToAliceCid <- submit ub do
+        exerciseCmd ubAssetCid Asset_Transfer with
+            recipient = alice
+            transferAmount = 400.0
+    
+    aliceAssetCid <- submit alice do
+        exerciseCmd ubToAliceCid AssetTransferProposal_Accept
+    
+    Some (ubRemainingAssetCid, _) <- queryContractKey @Asset ub (ub, ub)
+    ubToBobCid <- submit ub do
+        exerciseCmd ubRemainingAssetCid Asset_Transfer with
+            recipient = bob
+            transferAmount = 100.0
+    
+    submit bob do
+        exerciseCmd ubToBobCid AssetTransferProposal_Accept
+
+    aliceToBobCid <- submit alice do
+        exerciseCmd aliceAssetCid Asset_Transfer with
+            recipient = bob
+            transferAmount = 30.0
+
+    bobAssetCid <- submit bob do
+        exerciseCmd aliceToBobCid AssetTransferProposal_Accept
+
+    pure (alice, bob, ub, bobAssetCid)
