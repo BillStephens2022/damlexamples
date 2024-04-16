@@ -1,0 +1,16 @@
+module UsingShapes where
+
+import Daml.Script
+-- import Shapes module (i.e. the Shapes.daml file we created)
+import Shapes
+
+
+testShape: Script()
+testShape = script do
+    let circle5 = Circle(Point 0.0 0.0) 5.0
+    debug $ "Print newly created circle (circle5) with radius 5: " <> show(circle5);
+    debug $ "The area of circle5 is: " <> show (area circle5)
+
+    let rectangle1 = Rectangle (Point 0.0 0.0) (Point 10.0 5.0)
+    debug $ "Print newly create rectangle (rectangle1): " <> show rectangle1
+    debug $ "The area of rectangle1 is: " <> show (area rectangle1)
