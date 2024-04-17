@@ -1,0 +1,135 @@
+module UTXO where
+-- Note: UTXO stands for "Unspent Transaction Output"
+
+import Daml.Script
+
+data SplitResult = SplitResult with
+    splitAsset: ContractId Asset
+    remainder: ContractId Asset
+        deriving (Eq, Show)
+
+template Asset
+    with
+        issuer: Party
+        owner: Party
+        amount: Decimal
+    where
+        signatory issuer, owner
+        ensure amount > 0.0
+
+        choice Asset_Transfer: ContractId AssetTransferProposal
+            with
+                recipient: Party
+            controller owner
+            do
+                create AssetTransferProposal with
+                    asset = this
+                    recipient
+        
+        choice Asset_Merge: ContractId Asset
+            with
+                otherAssetCid: ContractId Asset
+            controller owner
+            do
+                otherAsset <- fetch otherAssetCid
+            
+                assertMsg "Merge failed: issuer does not match" (issuer == otherAsset.issuer)
+                assertMsg "Merge failed: owner does not match" (owner == otherAsset.owner)
+
+                archive otherAssetCid
+                create this with
+                    amount = amount + otherAsset.amount
+
+        choice Asset_Split: SplitResult
+            with
+                splitAmount: Decimal
+            controller owner
+            do
+                splitAsset <- create this with
+                    amount = splitAmount
+                remainder <- create this with 
+                    amount = amount - splitAmount
+                pure SplitResult with
+                    splitAsset
+                    remainder
+
+template AssetTransferProposal
+    with
+        asset: Asset
+        recipient: Party
+    where
+        signatory (signatory asset)
+        observer recipient
+        ensure asset.amount > 0.0
+
+        choice AssetTransferProposal_Accept: ContractId Asset
+            controller recipient
+            do
+                create asset with
+                    owner = recipient
+        
+        choice AssetTransferProposal_Reject: ContractId Asset
+            controller recipient
+            do
+                create asset
+
+data TestParties = TestParties with
+    alice: Party
+    bob: Party
+    ub: Party
+    eb: Party
+
+setupTestParties = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    ub <- allocateParty "US_Bank"
+    eb <- allocateParty "EU_Bank"
+
+    pure TestParties with ..
+
+testUTXO = script do
+    -- destructuring party names in line below so we don't need to type testParties.alice, testParties.bob, etc
+    (testParties@TestParties{..}) <- setupTestParties
+
+    ubAssetCid1 <- submit ub do
+        createCmd Asset with
+            issuer = ub
+            owner = ub
+            amount = 700.0
+    
+    ubAssetCid2 <- submit ub do
+        createCmd Asset with
+            issuer = ub
+            owner = ub
+            amount = 300.0
+    
+    mergedUbAssetCid <- submit ub do
+        exerciseCmd ubAssetCid1 Asset_Merge with
+            otherAssetCid = ubAssetCid2
+    
+    splittedUbAssetRecord <- submit ub do
+        exerciseCmd mergedUbAssetCid Asset_Split with
+            splitAmount = 400.00
+    
+    ubToAliceCid <- submit ub do
+        exerciseCmd splittedUbAssetRecord.splitAsset Asset_Transfer with
+            recipient = alice
+    
+    aliceAssetCid <- submit alice do
+        exerciseCmd ubToAliceCid AssetTransferProposal_Accept
+    
+    ubToBobCid <- submit ub do
+        exerciseCmd splittedUbAssetRecord.remainder Asset_Transfer with
+            recipient = bob
+    
+    bobAssetCid <- submit bob do
+        exerciseCmd ubToBobCid AssetTransferProposal_Accept
+    
+    aliceToBobCid <- submit alice do
+        exerciseCmd aliceAssetCid Asset_Transfer with
+            recipient = bob
+
+    bobTotalAssetCid <- submit bob do
+        exerciseCmd aliceToBobCid AssetTransferProposal_Accept
+
+    pure (testParties, bobTotalAssetCid)
