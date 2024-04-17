@@ -24,6 +24,10 @@ treeElem x (Node a left right)
     | x > a = treeElem x right
 treeElem _ _= False
 
+instance Functor Tree where
+    fmap f EmptyTree = EmptyTree
+    fmap f (Node x left right) = Node (f x) (fmap f left) (fmap f right)
+
 testTree: Script ()
 testTree = script do
     let nums = [8,6,4,1,7,3,5]
@@ -33,4 +37,5 @@ testTree = script do
     debug $ 100 `treeElem` numsTree
     debug $ 1 `treeElem` numsTree
     debug $ 10 `treeElem` numsTree
+    debug $ (*2) <$> numsTree
 
