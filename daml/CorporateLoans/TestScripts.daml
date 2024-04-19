@@ -1,10 +1,7 @@
 module TestScripts where
-
-
 import Daml.Script
 import DA.Date
 import CreditAgreement
-import Facility
 
 
 testScript : Script ()
@@ -15,7 +12,7 @@ testScript = script do
     acmeBank <- allocateParty "Acme Bank"
 
   -- Create a CreditAgreement contract
-    ca <- submit fundingSecuredBank do
+    ca <- submitMulti [fundingSecuredBank, starkIndustries, acmeBank] [] do
         createCmd CreditAgreement with
             lender = fundingSecuredBank
             borrower = starkIndustries
@@ -27,10 +24,10 @@ testScript = script do
             isAgent = True
             isSwinglineLender = False
             isLcIssuer = False
-       
+            facilities = []
 
-  -- Create a Facility representing a Revolver
-    f <- submit fundingSecuredBank do
+       -- Create a Facility representing a Revolver
+    f <- submitMulti [fundingSecuredBank, starkIndustries, acmeBank] [] do
         createCmd Facility with
             creditAgreementId = ca
             lender = fundingSecuredBank
@@ -44,4 +41,18 @@ testScript = script do
             facilityExpiryDate = date 2026 Jan 14
             facilityMaturityDate = date 2027 Jan 1
 
+       -- lending bank signs the commitment letter
+    caSignLetter <- submit fundingSecuredBank do 
+      exerciseCmd ca SignCommitmentLetter
+
+    -- borrower countersigns letter
+    caCountersignLetter <- submit starkIndustries do
+      exerciseCmd caSignLetter AcceptCommitmentLetter
+
+    -- lending bank closes deal
+    caClosed <- submit fundingSecuredBank do
+      exerciseCmd caCountersignLetter CloseDeal
+      
     return ()
+
+
