@@ -1,0 +1,46 @@
+module CreditAgreement where
+
+data DealStatus = Pending | CommitmentLetterSigned | CommitmentLetterCounterSigned | Closed
+    deriving (Eq, Show)
+
+template CreditAgreement
+    with
+        lender : Party
+        borrower : Party
+        agent: Party
+        effectiveDate : Date
+        globalDealCommitment : Decimal
+        hostBankDealCommitment: Decimal
+        dealStatus: DealStatus
+        isAgent: Bool
+        isSwinglineLender: Bool
+        isLcIssuer: Bool
+   
+  where
+    signatory lender, borrower, agent
+
+    choice PendingDeal: ContractId CreditAgreement
+        controller lender
+        do
+            create this with
+                dealStatus = Pending
+
+
+    choice SignCommitmentLetter: ContractId CreditAgreement 
+        controller lender 
+        do
+            create this with
+                dealStatus = CommitmentLetterSigned
+
+    choice AcceptCommitmentLetter: ContractId CreditAgreement 
+        controller borrower
+        do
+            create this with
+                dealStatus = CommitmentLetterCounterSigned
+
+    choice CloseDeal: ContractId CreditAgreement 
+        controller lender 
+        do
+            create this with
+                dealStatus = Closed
+                    

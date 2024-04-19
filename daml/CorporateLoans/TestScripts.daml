@@ -1,0 +1,47 @@
+module TestScripts where
+
+
+import Daml.Script
+import DA.Date
+import CreditAgreement
+import Facility
+
+
+testScript : Script ()
+testScript = script do
+  -- Define parties
+    fundingSecuredBank <- allocateParty "FundingSecured Bank"
+    starkIndustries <- allocateParty "Stark Industries"
+    acmeBank <- allocateParty "Acme Bank"
+
+  -- Create a CreditAgreement contract
+    ca <- submit fundingSecuredBank do
+        createCmd CreditAgreement with
+            lender = fundingSecuredBank
+            borrower = starkIndustries
+            agent = acmeBank
+            effectiveDate = date 2024 Jan 14
+            globalDealCommitment = 100000000.00
+            hostBankDealCommitment = 15000000.00
+            dealStatus = Pending
+            isAgent = True
+            isSwinglineLender = False
+            isLcIssuer = False
+       
+
+  -- Create a Facility representing a Revolver
+    f <- submit fundingSecuredBank do
+        createCmd Facility with
+            creditAgreementId = ca
+            lender = fundingSecuredBank
+            borrower = starkIndustries
+            agent = acmeBank
+            facilityType = "Revolver"
+            facilityName = "Revolver Facility"
+            facilityGlobalCommitment = 100000000.00
+            facilityHostBankCommitment = 15000000.00
+            facilityStartDate = date 2024 Jan 14
+            facilityExpiryDate = date 2026 Jan 14
+            facilityMaturityDate = date 2027 Jan 1
+
+    return ()
