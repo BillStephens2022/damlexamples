@@ -1,0 +1,72 @@
+module Deal where
+
+data DealStatus = Pending | CommitmentLetterSigned | CommitmentLetterCounterSigned | Closed
+    deriving (Eq, Show)
+
+template Deal
+    with
+        lender: Party
+        borrower: Party
+        agent: Party
+        effectiveDate : Date
+        globalDealCommitment : Decimal
+        hostBankDealCommitment: Decimal
+        dealStatus: DealStatus
+        isAgent: Bool
+        isSwinglineLender: Bool
+        isLcIssuer: Bool
+        facilities: [ContractId Facility] -- associated loan facilities
+   
+  where
+    signatory lender, borrower, agent
+
+    choice PendingDeal: ContractId Deal
+        controller lender
+        do
+            create this with
+                dealStatus = Pending
+
+
+    choice SignCommitmentLetter: ContractId Deal 
+        controller lender
+       do
+        -- Update the deal status to CommitmentLetterSigned
+            assertMsg "Deal status must be Pending to sign the commitment letter." (dealStatus == Pending) 
+            create this with dealStatus = CommitmentLetterSigned
+               
+            
+
+    choice AcceptCommitmentLetter: ContractId Deal 
+        controller borrower
+        do
+            -- Update the deal status to CommitmentLetterCounterSigned
+                    assertMsg "Deal status must be CommitmentLetterSigned for borrower to accept." (dealStatus == CommitmentLetterSigned) 
+                    create this with dealStatus = CommitmentLetterCounterSigned
+
+    choice CloseDeal: ContractId Deal 
+        controller lender 
+        do
+            -- Update the deal status to Closed
+                    assertMsg "Deal status must be CommitmentLetterCounterSigned for lender to close." (dealStatus == CommitmentLetterCounterSigned) 
+                    create this with dealStatus = Closed
+
+
+
+template Facility
+  with
+    creditAgreementId : ContractId Deal
+    lender: Party
+    borrower: Party
+    agent: Party
+    facilityType : Text
+    facilityName: Text
+    facilityGlobalCommitment : Decimal
+    facilityHostBankCommitment: Decimal
+    facilityStartDate : Date
+    facilityExpiryDate: Date
+    facilityMaturityDate : Date
+  where
+    signatory lender, borrower, agent
+
+
+        
