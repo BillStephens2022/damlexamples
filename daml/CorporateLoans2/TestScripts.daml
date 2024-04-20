@@ -40,22 +40,6 @@ testScript = script do
             facilityExpiryDate = date 2026 Jan 14
             facilityMaturityDate = date 2027 Jan 1
 
-       -- Add the facility to the Deal
-  
-    -- caWithFacility <- submitMulti [fundingSecuredBank, starkIndustries, acmeBank] [] do
-    --     createCmd Deal with
-    --         lender = fundingSecuredBank
-    --         borrower = starkIndustries
-    --         agent = acmeBank
-    --         effectiveDate = date 2024 Jan 14
-    --         globalDealCommitment = 100000000.00
-    --         hostBankDealCommitment = 15000000.00
-    --         dealStatus = Pending
-    --         isAgent = True
-    --         isSwinglineLender = False
-    --         isLcIssuer = False
-    --         facilities = [f]
-   
      -- Add the facility to the Deal
     caWithFacility <- submit fundingSecuredBank do
       exerciseCmd ca (AddFacility f)
