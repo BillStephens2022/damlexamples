@@ -51,10 +51,17 @@ template Deal
                     create this with dealStatus = Closed
 
 
+     -- Add a new facility to the deal
+    choice AddFacility : ContractId Deal
+        with
+            newFacilityId: ContractId Facility
+        controller lender
+            do
+                create this with facilities = newFacilityId :: facilities
 
 template Facility
   with
-    creditAgreementId : ContractId Deal
+    dealId : ContractId Deal
     lender: Party
     borrower: Party
     agent: Party
