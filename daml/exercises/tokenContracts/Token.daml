@@ -1,5 +1,11 @@
 module Token where
 
+-- Exercise in DAML documentation
+-- create two different types of Token contracts 
+-- In tests, create 2 parties ('alice' and 'bob') who will each own 1 of each token
+-- attempt an unauthorized archive (i.e. where alice attemps to archive one of bob's
+    -- contracts and vice versa).  use 'submitMustFail' in test
+-- perform two valid contract archives, one for each party 
 
 template Token_A
     with

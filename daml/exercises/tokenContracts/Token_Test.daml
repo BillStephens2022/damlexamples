@@ -5,8 +5,11 @@ import Daml.Script
 
 testScript: Script ()
 testScript = script do
+    -- create 2 parties, alice & bob who will be owners on the Token contracts
     alice <- allocateParty "Alice"
     bob <- allocateParty "Bob"
+
+    -- create token contracts, one for each token for each user
     token1 <- submit alice do
         createCmd Token_A with owner = alice
     token2 <- submit bob do
@@ -15,12 +18,18 @@ testScript = script do
         createCmd Token_B with owner = alice
     token4 <- submit bob do
         createCmd Token_B with owner = bob
+
+    -- test unauthorized contract archivals where bob attempts to
+        -- archive one of alice's contracts and vice versa
     submitMustFail bob do
         archiveCmd token1
     submitMustFail alice do
         archiveCmd token4
+    
+    -- test a valid archive (alice archives one of her own contracts)
     submit alice do
         archiveCmd token1
+        
     return ()
 
     
