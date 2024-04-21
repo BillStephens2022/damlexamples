@@ -1,0 +1,26 @@
+module Token_Test where
+
+import Token
+import Daml.Script
+
+testScript: Script ()
+testScript = script do
+    alice <- allocateParty "Alice"
+    bob <- allocateParty "Bob"
+    token1 <- submit alice do
+        createCmd Token_A with owner = alice
+    token2 <- submit bob do
+        createCmd Token_A with owner = bob
+    token3 <- submit alice do
+        createCmd Token_B with owner = alice
+    token4 <- submit bob do
+        createCmd Token_B with owner = bob
+    submitMustFail bob do
+        archiveCmd token1
+    submitMustFail alice do
+        archiveCmd token4
+    submit alice do
+        archiveCmd token1
+    return ()
+
+    

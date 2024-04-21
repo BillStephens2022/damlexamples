@@ -1,0 +1,14 @@
+module Token where
+
+
+template Token_A
+    with
+        owner: Party
+    where
+        signatory owner
+
+template Token_B
+    with
+        owner: Party
+    where
+        signatory owner
