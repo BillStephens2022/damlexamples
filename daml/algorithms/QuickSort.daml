@@ -1,0 +1,19 @@
+module QuickSort where
+
+import Daml.Script
+
+
+quickSort: Ord a => [a] -> [a]
+quickSort [] = []
+quickSort (x::xs) = quickSort ys <> [x] <> quickSort zs
+    where
+        ys = filter (\a -> a <= x) xs
+        zs = filter (\b -> b > x) xs
+
+sortTest: Script ()
+sortTest = script do
+    let list1 = [3,2,1,4]
+    debug $ "Unsorted List: " <> show (list1) <> " Sorted List: " <> show (quickSort list1)
+    let list2 = ["z", "a", "r", "b"]
+    debug $ "Unsorted List: " <> show (list2) <> " Sorted List: " <> show (quickSort list2)
+
