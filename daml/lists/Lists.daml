@@ -1,0 +1,58 @@
+module Lists where
+
+import Daml.Script
+import DA.List
+
+type PlanetarySystemId = ContractId PlanetarySystem
+
+template PlanetarySystem
+    with
+        astronomer: Party
+        planets: [Text]
+    where
+        signatory astronomer
+        choice AddPlanet : PlanetarySystemId
+            with
+                planetToAdd : Text
+            controller astronomer
+            do
+                assertMsg "planet already exists!" (planetToAdd `notElem` planets)
+                create this with
+                    planets = planetToAdd :: planets -- add to beginning of list, planetToAdd becomes the "head"
+        choice RemovePlanet : PlanetarySystemId
+            with
+                planetToRemove : Text
+            controller astronomer
+            do 
+                assertMsg "planet not in list!" (planetToRemove `elem` planets)
+                create this with
+                    planets = delete planetToRemove planets
+
+testAddPlanet : Script PlanetarySystemId
+testAddPlanet = script do
+    neal <- allocateParty "Neal"
+    solarSystem <- submit neal do
+        createCmd PlanetarySystem with
+            astronomer = neal
+            planets = ["Mercury","Venus","Earth","Mars","Jupiter","Saturn"] 
+
+    -- Uranus added in 1701 when discovered
+    solarSystemWithUranus <- submit neal do
+        exerciseCmd solarSystem AddPlanet with
+            planetToAdd = "Uranus"
+
+    -- Neptune added in 1846 when discovered
+    solarSystemWithNeptune <- submit neal do
+        exerciseCmd solarSystemWithUranus AddPlanet with
+            planetToAdd = "Neptune"
+
+    -- Pluto added in 1930 when discovered
+    solarSystemWithPluto <- submit neal do
+        exerciseCmd solarSystemWithNeptune AddPlanet with
+            planetToAdd = "Pluto"   
+
+    -- Removed Pluto when determined a dwarf planet in 2006
+    submit neal do
+        exerciseCmd solarSystemWithPluto RemovePlanet with
+            planetToRemove = "Pluto"        
+
