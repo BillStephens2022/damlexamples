@@ -1,6 +1,7 @@
 module Calculations where
 
 import Daml.Script
+import DA.Math
 
 type ComputationId = ContractId Computation
 
@@ -13,6 +14,10 @@ template Computation
         multiplyByTwo: Int
         divideByThree: Int
         divideBySeven: Int
+        modulusOfFive: Int
+        powerOfTwo: Decimal
+        squareRootOf: Decimal
+        
     where
         signatory mathematician
         choice Calculate : ComputationId
@@ -27,7 +32,10 @@ template Computation
                     multiplyByTwo = valueToTest * 2
                     divideByThree = valueToTest / 3
                     divideBySeven = valueToTest / 7
-
+                    modulusOfFive = valueToTest % 5
+                    powerOfTwo = intToDecimal valueToTest ** 2.0
+                    squareRootOf = sqrt (intToDecimal valueToTest)
+                    
 testCalculate : Script ComputationId
 testCalculate = script do
     einstein <- allocateParty "Einstein"
@@ -40,7 +48,10 @@ testCalculate = script do
             multiplyByTwo = 0
             divideByThree = 0
             divideBySeven = 0
-    
+            modulusOfFive = 0
+            powerOfTwo = 0.0
+            squareRootOf = 0.0
+            
     submit einstein do
         exerciseCmd calculation0 Calculate with
             valueToTest = 12
