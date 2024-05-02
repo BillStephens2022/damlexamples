@@ -18,8 +18,23 @@ template PlanetarySystem
             do
                 assertMsg "planet already exists!" (planetToAdd `notElem` planets)
                 create this with
-                    planets = planetToAdd :: planets -- add to beginning of list, planetToAdd becomes the "head"
-        choice RemovePlanet : PlanetarySystemId
+                    -- if we want to add to beginning of list
+                    -- planets = planetToAdd :: planets -- add to beginning of list, planetToAdd becomes the "head"
+                    
+                    -- if we want to sort the list after adding planet
+                    -- planets = sort (planetToAdd :: planets)
+                    
+                    -- if we want to add planet to end of list
+                    planets = planets ++ [planetToAdd]
+        choice AddPlanets : PlanetarySystemId
+            with 
+                planetsToAdd : [Text]
+            controller astronomer
+            do
+                create this with
+                    planets = planets ++ planetsToAdd
+
+        choice RemovePlanet : PlanetarySystemId    
             with
                 planetToRemove : Text
             controller astronomer
@@ -52,7 +67,13 @@ testAddPlanet = script do
             planetToAdd = "Pluto"   
 
     -- Removed Pluto when determined a dwarf planet in 2006
-    submit neal do
+    solarSystemWithoutPluto <- submit neal do
         exerciseCmd solarSystemWithPluto RemovePlanet with
-            planetToRemove = "Pluto"        
+            planetToRemove = "Pluto"
+
+    -- Add the dwarf planets
+    submit neal do
+        let dwarfPlanets = ["Pluto", "Eris", "Haumea", "Ceres","Makemake"]        
+        exerciseCmd solarSystemWithoutPluto AddPlanets with
+            planetsToAdd = dwarfPlanets
 
