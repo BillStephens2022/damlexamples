@@ -1,0 +1,51 @@
+module Calculations where
+
+import Daml.Script
+
+type ComputationId = ContractId Computation
+
+template Computation
+    with
+        mathematician : Party
+        value: Int
+        addOne: Int
+        subtractOne: Int
+        multiplyByTwo: Int
+        divideByThree: Int
+        divideBySeven: Int
+    where
+        signatory mathematician
+        choice Calculate : ComputationId
+            with
+                valueToTest : Int
+            controller mathematician
+            do
+                create this with
+                    value = valueToTest
+                    addOne = valueToTest + 1
+                    subtractOne = valueToTest - 1
+                    multiplyByTwo = valueToTest * 2
+                    divideByThree = valueToTest / 3
+                    divideBySeven = valueToTest / 7
+
+testCalculate : Script ComputationId
+testCalculate = script do
+    einstein <- allocateParty "Einstein"
+    calculation0 <- submit einstein do
+        createCmd Computation with
+            mathematician = einstein
+            value = 0
+            addOne = 0
+            subtractOne = 0
+            multiplyByTwo = 0
+            divideByThree = 0
+            divideBySeven = 0
+    
+    submit einstein do
+        exerciseCmd calculation0 Calculate with
+            valueToTest = 12
+
+
+
+    
+        
